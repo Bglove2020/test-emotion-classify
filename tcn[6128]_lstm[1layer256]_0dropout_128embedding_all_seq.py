@@ -30,7 +30,7 @@ for line in lines:
     list_tmp = line.strip().split("\t")
 
     # if(len(list_tmp)==3 and len(list_tmp[1])<=100 and(list_tmp[2]=="sadness" or list_tmp[2]=="happiness")):
-    if (len(list_tmp) == 3):
+    if (len(list_tmp) == 3 and len(list_tmp[1])<=100):
         if pattern.search(list_tmp[1]) != None:
             continue
         data_txt.append(list_tmp[1])
@@ -153,7 +153,7 @@ class TCN_LSTM(nn.Module):
     def __init__(self, max_dict_index,input_size, output_size, num_channels, kernel_size, dropout):
         super(TCN_LSTM, self).__init__()
         self.tcn = TCN(max_dict_index,input_size, num_channels=num_channels, kernel_size=kernel_size, dropout=dropout)
-        self.lstm =mylstm(256,64,1,output_size,0)
+        self.lstm =mylstm(228,64,1,output_size,0.2)
         self.emb = nn.Embedding(max_dict_index, input_size)
     def forward(self, x):
         # x的形状为(batch_size, seq_len, num_features)
@@ -168,12 +168,12 @@ class TCN_LSTM(nn.Module):
         # 输出的形状为(batch_size, output_size)
         return x
 # 构建 TCN 模型
-batch_size = 64
-max_dict_index =59794
+batch_size = 128
+max_dict_index =44474
 
 train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
-model = TCN_LSTM(max_dict_index, input_size=128, output_size=7, num_channels=[128, 128, 128, 128, 128, 128], kernel_size=3, dropout=0)
+model = TCN_LSTM(max_dict_index, input_size=128, output_size=7, num_channels=[128, 128, 128, 128, 100, 100,100], kernel_size=3, dropout=0.2)
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 #交叉熵损失直接包括了softmax层和对标签的
 criterion=nn.CrossEntropyLoss()
